@@ -1,0 +1,766 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Design in the Age of AI · Yu Liu</title>
+<style>
+  /* Signal + Figure. One frame, every slide: eyebrow, headline, figure, caption.
+     The frame never moves; only its content changes. That repetition is the order.
+     Dark ground, SF Pro, monochrome. The accent (pure white against grey) means a human decides. */
+  :root{
+    --accent-l:.97; --accent-c:.005; --accent-h:265;
+    --bg-l:.14;
+    --sz-display:112; --sz-title:84; --sz-sub:36; --sz-body:28; --sz-cap:22;
+    --lh-display:1.02; --lh-title:1.1; --lh-sub:1.2; --lh-body:1.45;
+    --w-display:600; --w-sub:500;
+    --track:-.022em;
+    --speed:12s;
+    --font:-apple-system,"SF Pro Display","SF Pro Text",system-ui,"Helvetica Neue",sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+
+    --bg:oklch(var(--bg-l) .006 265);
+    --surface:oklch(calc(var(--bg-l) + .055) .008 265);
+    --raised:oklch(calc(var(--bg-l) + .13) .01 265);
+    --line:oklch(calc(var(--bg-l) + .17) .01 265);
+    --fg:oklch(.97 .003 265);
+    --mute:oklch(.64 .01 265);
+    --accent:oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+    --on-accent:oklch(.16 .006 265);
+    --px:160px; --top:150px; --bottom:96px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);overflow:hidden}
+  body{font-family:var(--font);color:var(--fg);-webkit-font-smoothing:antialiased;font-optical-sizing:auto}
+  #stage{width:1920px;height:1080px;position:absolute;left:50%;top:50%;transform-origin:center;overflow:hidden}
+
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:var(--top) var(--px) var(--bottom)}
+  .slide.active{display:flex}
+  .eyebrow{font-size:calc(var(--sz-cap)*1px);line-height:1;font-weight:500;color:var(--mute);margin:0 0 32px}
+  h1,h2,h3,p{margin:0;text-wrap:pretty}
+  h1,h2{text-wrap:balance}
+  h1{font-size:calc(var(--sz-display)*1px);line-height:var(--lh-display);letter-spacing:var(--track);font-weight:var(--w-display);max-width:1560px}
+  h2{font-size:calc(var(--sz-title)*1px);line-height:var(--lh-title);letter-spacing:calc(var(--track)*.8);font-weight:var(--w-display);max-width:1500px}
+  h3{font-size:calc(var(--sz-sub)*1px);line-height:var(--lh-sub);letter-spacing:-.012em;font-weight:var(--w-sub)}
+  p{font-size:calc(var(--sz-body)*1px);line-height:var(--lh-body);color:var(--mute)}
+  .cap{font-size:calc(var(--sz-cap)*1px);line-height:1.45;color:var(--mute);max-width:1500px}
+  .sub{font-size:40px;line-height:1.35;font-weight:400;letter-spacing:-.01em;color:var(--mute);margin-top:32px;max-width:1300px}
+  .quote{text-indent:-.4em}
+  .fg{color:var(--fg)} .m{color:var(--mute)} .ac{color:var(--accent)}
+  .mono{font-family:var(--mono)}
+
+  .fig{flex:1;display:flex;align-items:center;min-height:0}
+  .foot{margin-top:auto}
+
+  /* progress through a sequence */
+  .steps{display:flex;gap:12px}
+  .steps i{width:120px;height:6px;border-radius:3px;background:var(--line)}
+  .steps i.on{background:var(--fg)}
+  .steps.five i{width:72px}
+
+  /* surfaces */
+  .card{background:var(--surface);border-radius:24px;padding:36px}
+  .bar{height:14px;border-radius:7px;background:var(--line);display:block}
+  .bar.fgb{background:var(--fg)}
+  .chip{font-size:26px;font-weight:500;padding:14px 24px;border-radius:999px;background:var(--surface);color:var(--fg);white-space:nowrap}
+  .card .chip{background:var(--raised)}
+  .chip.ac,.card .chip.ac{background:var(--accent);color:var(--on-accent)}
+  .chip.out{background:none;box-shadow:inset 0 0 0 2px var(--line)}
+
+  /* loops */
+  .ring{fill:none;stroke:var(--line);stroke-width:2}
+  .arc{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round}
+  .dot{fill:var(--accent)}
+  .orbit{transform-box:view-box;transform-origin:100px 100px;animation:spin var(--speed) linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* tables */
+  .rows{width:100%;display:flex;flex-direction:column}
+  .rows > div{display:grid;align-items:baseline;padding:24px 0;border-top:1px solid var(--line);gap:48px}
+  .rows > div:last-child{border-bottom:1px solid var(--line)}
+  .rows .th{padding:0 0 16px;border-top:0}
+  .rows.tight > div{padding:18px 0}
+  .rows.tight h3{font-size:32px}
+  .rows.tight p{font-size:26px}
+
+  /* flow: steps joined by a line */
+  .flow{width:100%;display:flex;align-items:center}
+  .flow .link{flex:1;height:2px;background:oklch(calc(var(--bg-l) + .26) .01 265);min-width:24px}
+  .flow .chip{animation:walk 7.2s infinite;animation-delay:calc(var(--i)*1.2s)}
+  @keyframes walk{0%,15%{box-shadow:0 0 0 4px var(--fg)}17%,100%{box-shadow:0 0 0 0 transparent}}
+  .loopback{animation:back 7.2s infinite}
+  @keyframes back{0%,83%{border-color:oklch(calc(var(--bg-l) + .26) .01 265)}86%,99%{border-color:var(--mute)}}
+  .loopback{width:100%;height:64px;border:2px solid oklch(calc(var(--bg-l) + .26) .01 265);border-top:0;border-radius:0 0 28px 28px;margin-top:26px;position:relative}
+  .loopback::after{content:"";position:absolute;left:-9px;top:-12px;border:8px solid transparent;border-bottom:12px solid oklch(calc(var(--bg-l) + .26) .01 265);border-top:0}
+
+  /* journey */
+  .journey{width:100%;display:grid;grid-template-columns:repeat(5,1fr);position:relative}
+  .journey::before{content:"";position:absolute;left:12px;right:0;top:11px;height:2px;background:var(--line)}
+  .journey .node{margin-bottom:36px}
+
+  /* thumbs */
+  .thumbs{width:100%;display:grid;grid-template-columns:repeat(5,1fr);gap:24px}
+  .th5{aspect-ratio:16/10;border-radius:16px;background:var(--surface);padding:22px;display:flex;flex-direction:column;gap:12px}
+  .th5 i{display:block;height:10px;border-radius:5px;background:var(--line)}
+  .th5.pick{box-shadow:0 0 0 4px var(--accent)}
+
+  /* autonomy */
+  .auto{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:48px;position:relative}
+  .auto::before{content:"";position:absolute;left:0;right:0;top:11px;height:2px;background:var(--line)}
+  .auto::after{content:"";position:absolute;left:calc(50% + 24px);right:0;top:11px;height:2px;background:var(--accent)}
+  .node{width:24px;height:24px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 2px var(--line);position:relative;z-index:1;margin-bottom:40px}
+  .node.on{background:var(--accent);box-shadow:none}
+
+  /* files */
+  .file{font-family:var(--mono);font-size:26px;line-height:1.75;display:grid;grid-template-columns:40px 1fr;column-gap:28px}
+  .file .ln{color:var(--line);text-align:right}
+  .file .h{color:var(--fg)} .file .t{color:var(--mute)} .file .add{color:var(--accent)}
+  .typed{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;width:0}
+  .slide.active .typed{animation:type 1.6s steps(32,end) 1.1s forwards}
+  @keyframes type{to{width:32ch}}
+
+  /* stable frame */
+  .chat{width:100%;display:flex;flex-direction:column;gap:20px}
+  .bubble{align-self:flex-end;background:var(--surface);border-radius:28px 28px 8px 28px;padding:22px 30px;font-size:30px}
+  .resp{position:relative;height:250px}
+  .fl{position:absolute;inset:36px;display:flex;flex-direction:column;gap:16px;opacity:0;animation:cycle 9s infinite}
+  .fl:nth-child(2){animation-delay:3s} .fl:nth-child(3){animation-delay:6s}
+  @keyframes cycle{0%{opacity:0}4%,30%{opacity:1}34%,100%{opacity:0}}
+  .btns{display:flex;gap:14px;margin-top:auto}
+
+  /* last 10% */
+  .ten{width:100%;display:grid;grid-template-columns:9fr 1fr;gap:6px}
+  .ten i{height:56px;border-radius:12px;background:var(--surface)}
+  .ten i.ac{background:var(--accent)}
+
+  /* avatar states */
+  .states{width:100%;display:flex;justify-content:space-between;padding-right:120px}
+  .states > div{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .av{width:150px;height:150px;border-radius:50%;background:var(--surface);position:relative;display:grid;place-items:center;margin-bottom:32px}
+  .av.listen{overflow:hidden}
+  .av.listen::before{content:"";position:absolute;inset:6px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--mute);animation:ripple 2.8s ease-out 1.4s infinite}
+  .av.listen::after{content:"";position:absolute;inset:6px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--mute);animation:ripple 2.8s ease-out infinite}
+  .av.think svg{animation:spin 1.6s linear infinite}
+  .eq{display:flex;gap:8px;align-items:center;height:56px}
+  .eq i{width:10px;border-radius:5px;background:var(--fg);animation:eq 1s ease-in-out infinite}
+  .eq i:nth-child(2){animation-delay:-.3s} .eq i:nth-child(3){animation-delay:-.6s} .eq i:nth-child(4){animation-delay:-.15s}
+  .eyes{display:flex;gap:26px}
+  .eyes i{width:12px;height:12px;border-radius:50%;background:var(--fg);animation:blink 4s infinite}
+  @keyframes breathe{50%{transform:scale(1.07)}}
+  @keyframes ripple{from{opacity:.8;transform:scale(.62)}to{opacity:0;transform:scale(1)}}
+  @keyframes eq{0%,100%{height:14px}50%{height:52px}}
+  @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+
+  .qr{width:300px;height:300px;padding:22px;border-radius:24px;background:var(--fg);flex:none}
+  .qr svg{width:100%;height:100%;display:block}
+  .qr path{stroke:var(--on-accent)}
+
+
+  /* context loop: workspace <-> agent */
+  .cloop{display:grid;grid-template-columns:860px 260px 180px;align-items:center;gap:56px}
+  .ctx{padding:36px 40px}
+  .pcols{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .pcol{display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+  .phead{font-size:24px;font-weight:500;color:var(--fg);margin:0 0 6px}
+  .citem{font-size:20px;padding:5px 12px;border-radius:999px;background:var(--raised);color:var(--mute);white-space:nowrap}
+  .citem.new{background:var(--accent);color:var(--on-accent);font-weight:500;animation:newitem 3.6s infinite}
+  @keyframes newitem{0%,30%{opacity:0;transform:translateY(8px)}45%,100%{opacity:1;transform:none}}
+  .shared{display:flex;gap:10px;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+  .shared .phead{margin-right:8px}
+  .kg text{font-family:var(--font)}
+  .kgpulse{transform-box:fill-box;transform-origin:center;animation:kgp 2.4s ease-out infinite}
+  @keyframes kgp{from{transform:scale(1);opacity:1}to{transform:scale(3);opacity:0}}
+  .files{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:24px}
+  .files span{padding:8px 0;color:var(--mute)} .files span.new{color:var(--accent)}
+  .flowarc{fill:none;stroke-width:3;stroke-linecap:round}
+  .flowarc.in{stroke:var(--line)} .flowarc.out{stroke:var(--accent)}
+  .flowarc.move{stroke-dasharray:2 22;stroke-width:6;animation:dash 1.2s linear infinite}
+  .flowarc.dim{opacity:.35}
+  @keyframes dash{to{stroke-dashoffset:-24}}
+  .agent{width:180px;height:180px;border-radius:50%;background:var(--surface);display:grid;place-items:center;position:relative}
+  /* ten different directions */
+  .tv{aspect-ratio:16/10;border-radius:16px;background:var(--surface);padding:16px;display:grid;gap:8px}
+  .tv i{display:block;border-radius:5px;background:var(--line)}
+  .tv.pick{box-shadow:0 0 0 4px var(--accent)} .tv.pick i.k{background:var(--fg)}
+  .r{opacity:0}
+  .slide.active .r{animation:rise .8s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--d,0)*80ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+  #open{position:fixed;left:8px;top:6px;z-index:5;background:none;border:0;color:var(--mute);
+    font:11px var(--mono);opacity:0;cursor:pointer;padding:8px;transition:opacity .2s}
+  #open:hover,#open:focus-visible{opacity:.7}
+  #panel{position:fixed;right:0;top:0;bottom:0;width:300px;z-index:6;overflow:auto;background:var(--surface);
+    padding:16px;display:flex;flex-direction:column;gap:8px;font:11px var(--mono);color:var(--mute)}
+  #panel[hidden]{display:none}
+  #panel h5{margin:8px 0 0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg)}
+  #panel label{display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+  #panel .v{color:var(--fg)}
+  #panel input{grid-column:1/-1;width:100%;accent-color:var(--accent)}
+  #panel button{font:inherit;padding:6px;border:1px solid var(--line);background:none;color:var(--fg);cursor:pointer;border-radius:6px}
+  .swatches{display:flex;gap:7px}
+  .swatches button{width:22px;height:22px;border-radius:50%;padding:0;border:0}
+
+  @media (prefers-reduced-motion:reduce){
+    .r,.slide.active .r{animation:none;opacity:1}
+    .orbit,.fl,.av,.av::after,.av::before,.av svg,.eq i,.eyes i,.kgpulse,.flow .chip,.loopback,.citem.new{animation:none}.fl:nth-child(1){opacity:1}
+    .slide.active .typed{animation:none;width:32ch}
+  }
+</style>
+
+<div id="stage"><main>
+
+  <!-- ============ OPEN ============ -->
+
+  <section class="slide" style="justify-content:flex-end;padding-bottom:180px">
+    <h2 class="r" style="--d:1">Design in the Age of AI</h2>
+    <div class="r" style="--d:3;display:flex;flex-direction:column;gap:20px;margin-top:96px">
+      <h3>Yu Liu</h3>
+      <p>Product designer @ Meta<br>Prev @ X / Twitter / Google / LinkedIn / Yahoo</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Show of hands</p>
+    <h1 class="r" style="--d:1">Who’s here?</h1>
+    <div class="fig">
+      <div class="rows r" style="--d:2">
+        <div style="grid-template-columns:1fr"><h3>Designers</h3></div>
+        <div style="grid-template-columns:1fr"><h3>PMs</h3></div>
+        <div style="grid-template-columns:1fr"><h3>Engineers</h3></div>
+        <div style="grid-template-columns:1fr"><h3>Founders, or something else</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Question 1 of 3</p>
+    <h1 class="r" style="--d:1">Raise your hand if you’ve vibe‑coded something.</h1>
+    <div class="fig"><p class="r" style="--d:2">A prototype, a site, an app.</p></div>
+    <div class="foot steps r" style="--d:3"><i class="on"></i><i></i><i></i></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Question 2 of 3</p>
+    <h1 class="r" style="--d:1">Keep it up if you’ve given AI a quality bar.</h1>
+    <div class="fig"><p class="r" style="--d:2">And let it check its own work until it passed.</p></div>
+    <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i></i></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Question 3 of 3</p>
+    <h1 class="r" style="--d:1">Keep it up if you’ve designed a product where the AI decides what to do next.</h1>
+    <div class="fig"></div>
+    <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  </section>
+
+  <section class="slide">
+    <h2 class="r" style="--d:1">Agenda</h2>
+    <div class="fig">
+      <div class="rows r" style="--d:3">
+        <div style="grid-template-columns:72px 1fr"><h3 class="m">1</h3><h3>Designing with AI</h3></div>
+        <div style="grid-template-columns:72px 1fr"><h3 class="m">2</h3><h3>Designing the AI application</h3></div>
+        <div style="grid-template-columns:72px 1fr"><h3 class="m">3</h3><h3>What designers still own</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PART 1 ============ -->
+
+  <section class="slide">
+    <p class="eyebrow r">Part 1</p>
+    <h1 class="r" style="--d:1">Designing with AI</h1>
+    <p class="r sub" style="--d:2">I realized I’d become a manager. My agents are new hires.</p>
+    <div class="fig"></div>
+    <div class="foot steps r" style="--d:3"><i class="on"></i><i></i><i></i></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Part 1 · Designing with AI</p>
+    <h2 class="r" style="--d:1">My three loops</h2>
+    <p class="r sub" style="--d:2;margin-top:20px">Three things a good manager would do.</p>
+    <div class="fig">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:48px;width:100%">
+        <div class="r" style="--d:2">
+          <svg width="240" height="240" viewBox="0 0 200 200"><circle class="ring" cx="100" cy="100" r="88"/>
+            <g class="orbit"><path class="arc" d="M37.8 37.8 A88 88 0 0 1 100 12"/><circle class="dot" cx="100" cy="12" r="9"/></g></svg>
+          <p class="cap" style="margin-top:36px">Onboarding</p><h3 style="margin-top:8px">Context loop</h3>
+        </div>
+        <div class="r" style="--d:3">
+          <svg width="240" height="240" viewBox="0 0 200 200"><circle class="ring" cx="100" cy="100" r="88"/>
+            <g class="orbit" style="animation-delay:-4s"><path class="arc" d="M37.8 37.8 A88 88 0 0 1 100 12"/><circle class="dot" cx="100" cy="12" r="9"/></g></svg>
+          <p class="cap" style="margin-top:36px">Design crit</p><h3 style="margin-top:8px">Verification loop</h3>
+        </div>
+        <div class="r" style="--d:4">
+          <svg width="240" height="240" viewBox="0 0 200 200"><circle class="ring" cx="100" cy="100" r="88"/>
+            <g class="orbit" style="animation-delay:-8s"><path class="arc" d="M37.8 37.8 A88 88 0 0 1 100 12"/><circle class="dot" cx="100" cy="12" r="9"/></g></svg>
+          <p class="cap" style="margin-top:36px">Pairing at the desk</p><h3 style="margin-top:8px">Canvas loop</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Loop 1 · Context · onboarding</p>
+    <h2 class="r" style="--d:1">One folder for all your context, that agents can read and write.</h2>
+    <div class="fig" style="padding-top:16px">
+      <div class="cloop r" style="--d:2">
+        <div class="ctx card">
+          <p class="cap mono fg" style="margin-bottom:20px">context/</p>
+          <div class="pcols">
+            <div class="pcol"><p class="phead">Project 1</p><span class="citem">Brief</span><span class="citem">PRD</span><span class="citem">Figma</span><span class="citem">Lead feedback</span></div>
+            <div class="pcol"><p class="phead">Project 2</p><span class="citem">Brief</span><span class="citem">Meeting notes</span><span class="citem">Prototype</span><span class="citem new">+ Today’s decisions</span></div>
+            <div class="pcol"><p class="phead">Project 3</p><span class="citem">PRD</span><span class="citem">Repo</span><span class="citem">Slides</span><span class="citem">User feedback</span></div>
+          </div>
+          <div class="shared"><p class="phead" style="margin:0">Shared</p><span class="citem">About me</span><span class="citem">Design system</span><span class="citem">Team principles</span></div>
+        </div>
+        <svg viewBox="0 0 280 340" width="260" height="316" aria-hidden="true" style="overflow:visible">
+          <defs>
+            <marker id="ah-in" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="var(--mute)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+            <marker id="ah-out" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker>
+          </defs>
+          <path class="flowarc in" style="stroke:var(--mute)" marker-end="url(#ah-in)" d="M36 130 A110 110 0 0 1 244 130"/>
+          <circle r="7" fill="var(--mute)"><animateMotion dur="1.8s" repeatCount="indefinite" path="M36 130 A110 110 0 0 1 244 130"/></circle>
+          <text x="140" y="14" fill="var(--mute)" font-size="24" text-anchor="middle">reads</text>
+          <path class="flowarc out" marker-end="url(#ah-out)" d="M244 190 A110 110 0 0 1 36 190"/>
+          <circle r="8" fill="var(--accent)"><animateMotion dur="1.8s" begin="0.9s" repeatCount="indefinite" path="M244 190 A110 110 0 0 1 36 190"/></circle>
+          <text x="140" y="326" fill="var(--fg)" font-size="24" text-anchor="middle">writes back</text>
+        </svg>
+        <div class="agent">
+          <h3>Agents</h3>
+        </div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:4">“A filesystem provides a single interface through which an agent can flexibly store, retrieve, and update an infinite amount of context.” LangChain</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Loop 1 · Context</p>
+    <h2 class="r" style="--d:1">Context files are now an industry standard.</h2>
+    <p class="r sub" style="--d:2;margin-top:20px">One plain file at the root of a project tells every agent how to work there.</p>
+    <div class="fig">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;width:100%">
+        <div class="card r" style="--d:3;display:flex;flex-direction:column;gap:14px">
+          <span class="mono fg" style="font-size:28px">AGENTS.md</span><p>Read by 30+ coding agents. In 60,000+ open-source repos.</p>
+        </div>
+        <div class="card r" style="--d:4;display:flex;flex-direction:column;gap:14px">
+          <span class="mono fg" style="font-size:28px">CLAUDE.md</span><p>The same idea, for Claude Code.</p>
+        </div>
+        <div class="card r" style="--d:5;display:flex;flex-direction:column;gap:14px">
+          <span class="mono fg" style="font-size:28px">raw/ → wiki/</span><p>Karpathy’s LLM Wiki: an agent maintains the wiki on top of your sources.</p>
+        </div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:6">AGENTS.md is now governed by the Linux Foundation’s Agentic AI Foundation. See also the Obsidian + Claude Code “second brain” pattern.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Loop 2 · Verification · design crit</p>
+    <h2 class="r" style="--d:1">Define the bar. Let it check its own work.</h2>
+    <div class="fig">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center;width:100%">
+        <div class="card r" style="--d:2;display:flex;flex-direction:column;gap:18px;aspect-ratio:16/9">
+          <span class="cap">Its screenshot, run 3</span>
+          <span class="bar fgb" style="width:55%"></span><span class="bar" style="width:85%"></span><span class="bar" style="width:70%"></span>
+          <span style="margin-top:auto;display:flex;gap:12px"><span class="bar" style="width:120px;height:44px;border-radius:12px"></span><span class="bar" style="width:120px;height:44px;border-radius:12px"></span></span>
+        </div>
+        <div class="r" style="--d:3">
+          <p class="cap" style="margin-bottom:22px">Its report back to me</p>
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Spacing on the 4pt scale</h3>
+            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Contrast passes</h3>
+            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Matches the Figma frame</h3>
+            <h3 class="ac"><span style="display:inline-block;width:52px">?</span>Two layouts both pass. Which one?</h3>
+          </div>
+          <p class="cap" style="margin-top:28px">What it can’t decide is where I step in.</p>
+        </div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:5">“Give Claude a way to verify its work. If Claude has that feedback loop, it will 2–3x the quality of the final result.” Boris Cherny, creator of Claude Code</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Where the two loops meet</p>
+    <h2 class="r" style="--d:1">I stopped repeating myself.</h2>
+    <div class="fig">
+      <div class="card r" style="--d:2;width:100%;padding:40px 48px">
+        <div class="file">
+          <span class="ln">1</span><span class="h">## Fixed</span>
+          <span class="ln">2</span><span class="t">Brand guidelines, design tokens, components</span>
+          <span class="ln">3</span><span>&nbsp;</span>
+          <span class="ln">4</span><span class="h">## Corrections</span>
+          <span class="ln">5</span><span class="t">No tertiary color for text.</span>
+          <span class="ln">6</span><span class="t">One primary button per screen.</span>
+          <span class="ln">7</span><span class="t">1px border, not a shadow.</span>
+          <span class="ln add">+</span><span class="add"><span class="typed">Date format is Sep 17, not 9/17.</span></span>
+        </div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:4">design.md. Crit produces the correction, context remembers it, so it never makes the same mistake twice.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Loop 3 · Canvas · pairing at the desk</p>
+    <h2 class="r" style="--d:1">AI explores widely. I pick and iterate.</h2>
+    <div class="fig">
+      <div class="thumbs r" style="--d:2">
+        <div class="tv" style="grid-template-columns:1fr;grid-template-rows:2fr 1fr 1fr"><i></i><i style="width:70%"></i><i style="width:40%"></i></div>
+        <div class="tv" style="grid-template-columns:1fr 2fr"><i></i><i></i></div>
+        <div class="tv" style="grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr"><i></i><i></i><i></i><i></i></div>
+        <div class="tv" style="grid-template-rows:repeat(4,1fr)"><i></i><i></i><i></i><i></i></div>
+        <div class="tv" style="grid-template-columns:2fr 1fr"><i></i><i></i></div>
+        <div class="tv" style="grid-template-columns:repeat(3,1fr);grid-template-rows:1fr 2fr"><i style="grid-column:1/-1"></i><i></i><i></i><i></i></div>
+        <div class="tv pick" style="grid-template-rows:1fr 3fr;padding:16px 40px"><i class="k" style="width:60%;justify-self:center"></i><i></i></div>
+        <div class="tv" style="grid-template-columns:1fr;place-items:center"><i style="width:50%;height:60%"></i></div>
+        <div class="tv" style="grid-template-columns:repeat(4,1fr)"><i></i><i></i><i></i><i></i></div>
+        <div class="tv" style="grid-template-rows:3fr 1fr"><i></i><i style="width:45%"></i></div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:4">Ten directions in parallel. I pick the one worth iterating on.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Loop 3 · Canvas</p>
+    <h2 class="r" style="--d:1">I tweak by hand in Figma. The agent brings it back to code.</h2>
+    <div class="fig" style="flex-direction:column;justify-content:center;align-items:stretch">
+      <div class="flow r" style="--d:2">
+        <span class="chip" style="--i:0">Agent cooks</span><span class="link"></span>
+        <span class="chip ac" style="--i:1">I pick</span><span class="link"></span>
+        <span class="chip" style="--i:2">Send to Figma</span><span class="link"></span>
+        <span class="chip ac" style="--i:3">I hand-tweak</span><span class="link"></span>
+        <span class="chip" style="--i:4">Send back to code</span><span class="link"></span>
+        <span class="chip" style="--i:5">Agent verifies</span>
+      </div>
+      <div class="r loopwrap" style="--d:3"><div class="loopback"></div></div>
+    </div>
+    <p class="foot cap r" style="--d:4">Spacing and alignment by hand. Then loop two checks the build matches the Figma frame.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Figma, from the other direction</p>
+    <h2 class="r quote" style="--d:1">“Too often, the tools we have for building force us into false choices between design and code, humans and agents, prompting and direct manipulation.”</h2>
+    <div class="fig"></div>
+    <p class="foot cap r" style="--d:3">Dylan Field · CEO, Figma · Config 2026</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Loop 3 · Canvas</p>
+    <h2 class="r quote" style="--d:1">“Going hands-on is often faster, more natural, and token efficient than prompting your way to the ideal output.”</h2>
+    <p class="r sub" style="--d:2">I’m not going to prompt three times to move something 2px.</p>
+    <div class="fig"></div>
+    <p class="foot cap r" style="--d:3">Rodrigo Davies &amp; Tammy Taabassum, Figma</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Even with all three loops</p>
+    <h1 class="r" style="--d:1">The loops can’t tell you the spec is wrong.</h1>
+    <p class="r sub" style="--d:2">Work can pass every check and still feel dead.</p>
+    <div class="fig"></div>
+  </section>
+
+  <!-- ============ PART 2 ============ -->
+
+  <section class="slide">
+    <p class="eyebrow r">Part 2</p>
+    <h1 class="r" style="--d:1">Designing the AI application</h1>
+    <p class="r sub" style="--d:2">The agent your users talk to, inside your product.</p>
+    <div class="fig"></div>
+    <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i></i></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">What we used to design</p>
+    <h2 class="r" style="--d:1">We mapped the user’s journey.</h2>
+    <div class="fig">
+      <div class="journey r" style="--d:2">
+        <div><div class="node"></div><h3>Acquire</h3></div>
+        <div><div class="node"></div><h3>Onboard</h3></div>
+        <div><div class="node"></div><h3>Aha</h3></div>
+        <div><div class="node"></div><h3>Key action</h3></div>
+        <div><div class="node"></div><h3>Retain</h3></div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:3">Roughly AARRR, Dave McClure, 2007</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">And every step was deterministic</p>
+    <h2 class="r" style="--d:1">Same input, same output. Every time.</h2>
+    <div class="fig">
+      <div class="rows r" style="--d:2">
+        <div style="grid-template-columns:1fr 1fr 160px"><h3>Types their name</h3><p>That exact name is saved and shown back</p><p class="fg" style="text-align:right">Always</p></div>
+        <div style="grid-template-columns:1fr 1fr 160px"><h3>Taps Follow</h3><p>The button becomes Following</p><p class="fg" style="text-align:right">Always</p></div>
+        <div style="grid-template-columns:1fr 1fr 160px"><h3>Applies 3 filters</h3><p>Same results, same order</p><p class="fg" style="text-align:right">Always</p></div>
+        <div style="grid-template-columns:1fr 1fr 160px"><h3>Hits a dead end</h3><p>The error copy I wrote</p><p class="fg" style="text-align:right">Always</p></div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:3">We could mock every screen because we knew every screen.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">What changed</p>
+    <h1 class="r quote" style="--d:1">“When you prompt an LLM, you don’t know what you’ll get back.”</h1>
+    <div class="fig"></div>
+    <p class="foot cap r" style="--d:3">Andrew Ng · The AI Engineering Skills Map · The Batch, 14 August 2026</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Part 2 · Its job description</p>
+    <h2 class="r" style="--d:1">Designing the agent’s behavior</h2>
+    <p class="r sub" style="--d:2;margin-top:20px">Like a hiring manager, I start with the job description.</p>
+    <div class="fig">
+      <div class="rows tight r" style="--d:2">
+        <div style="grid-template-columns:260px 1fr"><h3 class="m">Role</h3><p class="fg">Who are you?</p></div>
+        <div style="grid-template-columns:260px 1fr"><h3 class="m">Goal</h3><p class="fg">What does success look like?</p></div>
+        <div style="grid-template-columns:260px 1fr"><h3 class="m">Knowledge</h3><p class="fg">What context do you load?</p></div>
+        <div style="grid-template-columns:260px 1fr"><h3 class="m">Tools</h3><p class="fg">What can you do?</p></div>
+        <div style="grid-template-columns:260px 1fr"><h3 class="ac">Autonomy</h3><p class="ac">What do you do alone, check, ask about, or hand off?</p></div>
+        <div style="grid-template-columns:260px 1fr"><h3 class="m">Response</h3><p class="fg">How do you show up: text, a component, a plan, a next step?</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">The core design decision</p>
+    <h2 class="r" style="--d:1">The autonomy line</h2>
+    <div class="fig">
+      <div class="auto r" style="--d:2">
+        <div><div class="node"></div><h3 class="m">Do it</h3><p style="margin-top:14px">Look up, research, read.</p></div>
+        <div><div class="node"></div><h3 class="m">Check</h3><p style="margin-top:14px">Ambiguous? Clarify. Several valid paths? Let them steer.</p></div>
+        <div><div class="node on"></div><h3 class="ac">Ask</h3><p style="margin-top:14px">Money, sending, anything irreversible.</p></div>
+        <div><div class="node on"></div><h3 class="ac">Hand off</h3><p style="margin-top:14px">Repeated failure, or they want a person.</p></div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:4">After OpenAI, A Practical Guide to Building Agents</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">The job description, written down</p>
+    <h2 class="r" style="--d:1">It’s a system prompt.</h2>
+    <div class="fig">
+      <div class="card r" style="--d:2;width:100%;padding:36px 48px">
+        <div class="file" style="font-size:24px">
+          <span class="ln">1</span><span class="h"># Acme Audio · Support Agent</span>
+          <span class="ln">2</span><span class="t">You help customers resolve order and product issues in one conversation.</span>
+          <span class="ln">3</span><span class="h">## Decide on your own</span>
+          <span class="ln">4</span><span class="t">Replacements or repairs under $100, when the item is in warranty.</span>
+          <span class="ln">5</span><span class="add">## Ask the customer first</span>
+          <span class="ln">6</span><span class="t">Any refund. Show the exact amount and wait for confirmation.</span>
+          <span class="ln">7</span><span class="add">## Hand off to a human</span>
+          <span class="ln">8</span><span class="t">Refunds over $200. A second failed attempt. Any time they ask for a person.</span>
+          <span class="ln">9</span><span class="h">## How to respond</span>
+          <span class="ln">10</span><span class="t">Lead with the answer. Orders as cards, options as buttons.</span>
+        </div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:3">Illustrative example.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">“My headphones stopped working.”</p>
+    <h2 class="r" style="--d:1">Same request, different runs.</h2>
+    <div class="fig">
+      <div class="rows tight r" style="--d:2">
+        <div class="th" style="grid-template-columns:1fr 1fr"><span class="cap">Fixed by design</span><span class="cap">Varies run to run</span></div>
+        <div style="grid-template-columns:1fr 1fr"><h3>Checks order history first</h3><p>Sometimes checks open tickets too, sometimes not</p></div>
+        <div style="grid-template-columns:1fr 1fr"><h3>Order cards, never more than 3</h3><p>Asks “which order?”, or guesses from context</p></div>
+        <div style="grid-template-columns:1fr 1fr"><h3>One line of reasoning</h3><p>How it phrases it, which policy it mentions</p></div>
+        <div style="grid-template-columns:1fr 1fr"><h3>Options as buttons</h3><p>How many, and in what order</p></div>
+        <div style="grid-template-columns:1fr 1fr"><h3 class="ac">Confirm before any refund</h3><p>The wording of the ask</p></div>
+        <div style="grid-template-columns:1fr 1fr"><h3 class="ac">Over $200, a person takes over</h3><p>How it summarizes the case</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">One request, many runs</p>
+    <h2 class="r" style="--d:1">Stable frame, unstable content.</h2>
+    <div class="fig">
+      <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:96px;align-items:center;width:100%">
+        <div class="chat r" style="--d:2">
+          <div class="bubble">My headphones stopped working.</div>
+          <div class="card resp">
+            <div class="fl"><span class="bar fgb" style="width:70%"></span><span class="bar" style="width:52%"></span>
+              <span class="btns"><span class="chip">Replace</span><span class="chip">Repair</span><span class="chip ac">Refund $89</span></span></div>
+            <div class="fl"><span class="bar fgb" style="width:48%"></span><span class="bar" style="width:84%"></span><span class="bar" style="width:30%"></span>
+              <span class="btns"><span class="chip">Repair</span><span class="chip ac">Refund $89</span></span></div>
+            <div class="fl"><span class="bar fgb" style="width:80%"></span>
+              <span class="btns"><span class="chip">Store credit</span><span class="chip">Replace</span><span class="chip ac">Refund $89</span></span></div>
+          </div>
+        </div>
+        <div class="r" style="--d:3;display:flex;flex-direction:column;gap:20px">
+          <h3 class="m">The words change every run.</h3>
+          <h3 class="ac">The “Confirm refund” step is always there.</h3>
+        </div>
+      </div>
+    </div>
+    <p class="foot cap r" style="--d:4">You design the frame. The model fills it.</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">Part 2, in one line</p>
+    <h1 class="r" style="--d:1">We used to design every screen. Now we design the rules and the handoffs.</h1>
+    <p class="r sub" style="--d:2;max-width:none">What the agent does alone, and when it stops to ask a person.</p>
+    <div class="fig"></div>
+  </section>
+
+  <!-- ============ PART 3 ============ -->
+
+  <section class="slide">
+    <p class="eyebrow r">Part 3</p>
+    <h1 class="r" style="--d:1">What designers still own</h1>
+    <p class="r sub" style="--d:2">Everyone can design now. PMs, engineers, founders. That’s a good thing.</p>
+    <div class="fig"></div>
+    <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">The ceiling</p>
+    <h1 class="r quote" style="--d:1">“While AI has lowered the floor, it has not raised the ceiling.”</h1>
+    <div class="fig"></div>
+    <p class="foot cap r" style="--d:3">Dylan Field · CEO, Figma · Config 2026</p>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">What designers still own · 1 of 5</p>
+    <h1 class="r" style="--d:1">Set the bar, and raise the team’s.</h1>
+    <p class="r sub" style="--d:2">The criteria in my design.md become the team’s criteria.</p>
+    <div class="fig"></div>
+    <div class="foot steps five r" style="--d:3"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">What designers still own · 2 of 5</p>
+    <h2 class="r" style="--d:1">The last 10% is polish.</h2>
+    <div class="fig" style="flex-direction:column;justify-content:center;align-items:stretch;gap:28px">
+      <div class="ten r" style="--d:2"><i></i><i class="ac"></i></div>
+      <div class="r" style="--d:3;display:grid;grid-template-columns:9fr 1fr;gap:6px">
+        <p>The loop gets you here.</p><p class="ac" style="white-space:nowrap;text-align:right">You</p>
+      </div>
+    </div>
+    <div class="foot" style="display:flex;justify-content:space-between;align-items:center">
+      <p class="cap r" style="--d:4">Fixing what no check catches: spacing, alignment, empty states, error copy, the in-between states.</p>
+      <div class="steps five r" style="--d:4"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">What designers still own · 3 of 5</p>
+    <h2 class="r" style="--d:1">Adding what wasn’t requested: personality, states, motion.</h2>
+    <p class="r sub" style="--d:2;margin-top:20px">Nobody files a bug for missing delight.</p>
+    <div class="fig">
+      <div class="states r" style="--d:2">
+        <div><div class="av"><span class="eyes"><i></i><i></i></span></div><h3>Idle</h3></div>
+        <div><div class="av listen"><span class="eyes"><i></i><i></i></span></div><h3>Listening</h3></div>
+        <div><div class="av think"><svg width="70" height="70" viewBox="0 0 70 70"><circle cx="35" cy="35" r="28" fill="none" stroke="var(--line)" stroke-width="4"/><path d="M35 7 A28 28 0 0 1 63 35" fill="none" stroke="var(--fg)" stroke-width="4" stroke-linecap="round"/></svg></div><h3>Thinking</h3></div>
+        <div><div class="av"><span class="eq"><i></i><i></i><i></i><i></i></span></div><h3>Speaking</h3></div>
+      </div>
+    </div>
+    <div class="foot" style="display:flex;justify-content:space-between;align-items:center;gap:48px">
+      <span></span>
+      <div class="steps five r" style="--d:3;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">What designers still own · 4 of 5</p>
+    <h2 class="r" style="--d:1">“User” centric, and the user might not be human.</h2>
+    <p class="r sub" style="--d:2;margin-top:20px">Same product, two readers. The agent needs design too.</p>
+    <div class="fig">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;width:100%">
+        <div class="r" style="--d:3"><p class="cap" style="margin-bottom:18px">A person sees a screen</p>
+          <div class="card" style="display:flex;flex-direction:column;gap:16px;height:calc(100% - 46px)">
+            <span class="fg" style="font-size:28px;font-weight:500">Your orders</span>
+            <span class="chip" style="align-self:stretch;border-radius:14px">Studio headphones · Aug 2</span>
+            <span class="chip" style="align-self:stretch;border-radius:14px">Earbuds · Jun 18</span>
+          </div></div>
+        <div class="r" style="--d:4"><p class="cap" style="margin-bottom:18px">An agent reads a tool description</p>
+          <div class="card" style="height:calc(100% - 46px);display:flex;flex-direction:column;gap:16px">
+            <span class="fg" style="font-size:28px;font-weight:500">Tool: Look up orders</span>
+            <span style="font-size:28px;line-height:1.45;color:var(--mute)">Finds this customer’s past orders. Use it before answering any question about a return or refund.</span>
+          </div></div>
+      </div>
+    </div>
+    <div class="foot" style="display:flex;justify-content:space-between;align-items:center;gap:48px">
+      <p class="cap r" style="--d:4">Anthropic: invest in the agent-computer interface as much as the human one.</p>
+      <div class="steps five r" style="--d:4;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <p class="eyebrow r">And where I want to grow · 5 of 5</p>
+    <h1 class="r" style="--d:1">Building isn’t the hard part anymore.</h1>
+    <p class="r sub" style="--d:2">I can ship a product in a weekend. Getting people to use it is what I’m learning now: distribution, storytelling, business.</p>
+    <div class="fig"></div>
+    <div class="foot" style="display:flex;justify-content:space-between;align-items:center;gap:48px">
+      <p class="cap r" style="--d:3">“Design without business is just decoration.” Steve Johnson, VP of Design, Netflix</p>
+      <div class="steps five r" style="--d:3;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+    </div>
+  </section>
+
+  <!-- ============ CLOSE ============ -->
+
+  <section class="slide">
+    <p class="eyebrow r">Thank you</p>
+    <h2 class="r" style="--d:1">We used to design for humans. Now we design for humans and the agents working for them.</h2>
+    <h3 class="r m" style="--d:2;margin-top:28px">Someone still has to care about both. That’s us.</h3>
+    <div class="fig"></div>
+    <div class="foot" style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div class="r" style="--d:3;display:flex;gap:28px"><p class="fg" style="font-weight:500">Yu Liu</p><p>x.com/liuyuxxd</p></div>
+      <div class="qr r" style="--d:4" aria-label="QR code to x.com/liuyuxxd"><svg viewBox="0 0 25 25" shape-rendering="crispEdges"><path d="M0 0.5h7m2 0h3m1 0h2m1 0h1m1 0h7M0 1.5h1m5 0h1m2 0h1m2 0h1m2 0h2m1 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h4m1 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h1m1 0h1m3 0h3m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h1m5 0h2M0 8.5h1m1 0h5m3 0h5m3 0h5M0 9.5h1m1 0h4m2 0h1m1 0h1m2 0h2m1 0h1m6 0h1M0 10.5h2m1 0h5m2 0h1m1 0h1m2 0h1m1 0h1m3 0h1m1 0h2M0 11.5h5m3 0h1m3 0h1m2 0h2m3 0h1m3 0h1M1 12.5h1m4 0h1m1 0h2m1 0h1m1 0h2m2 0h4m1 0h3M0 13.5h1m3 0h2m1 0h2m3 0h3m1 0h1m2 0h1m1 0h1m1 0h1M0 14.5h1m1 0h6m2 0h1m4 0h2m1 0h4m1 0h2M0 15.5h1m1 0h3m2 0h1m2 0h1m1 0h1m3 0h2m1 0h2m3 0h1M0 16.5h1m5 0h2m1 0h2m1 0h3m1 0h5m1 0h1M8 17.5h1m6 0h2m3 0h2M0 18.5h7m4 0h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3M0 19.5h1m5 0h1m1 0h4m3 0h2m3 0h2M0 20.5h1m1 0h3m1 0h1m1 0h1m1 0h2m3 0h6m1 0h3M0 21.5h1m1 0h3m1 0h1m1 0h1m3 0h2m3 0h2m1 0h5M0 22.5h1m1 0h3m1 0h1m1 0h2m3 0h2m1 0h1m4 0h2m1 0h1M0 23.5h1m5 0h1m2 0h1m2 0h2m1 0h3m1 0h3m2 0h1M0 24.5h7m1 0h2m2 0h1m1 0h1m2 0h1m1 0h6"/></svg></div>
+    </div>
+  </section>
+
+</main></div>
+
+<button id="open" aria-label="Open design panel">tune</button>
+<aside id="panel" hidden></aside>
+
+<script>
+  const stage=document.getElementById('stage');
+  const fit=()=>{stage.style.transform=`translate(-50%,-50%) scale(${Math.min(innerWidth/1920,innerHeight/1080)})`};
+  addEventListener('resize',fit);fit();
+  const slides=[...document.querySelectorAll('.slide')];let i=0;
+  const go=n=>{i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    slides[i].querySelectorAll('.flow').forEach(f=>{const c=f.querySelectorAll('.chip'),w=f.nextElementSibling;
+      w.style.paddingLeft=c[0].offsetWidth/2-1+'px';w.style.paddingRight=c[c.length-1].offsetWidth/2-1+'px'});history.replaceState(null,'','#'+(i+1))};
+  const root=document.documentElement,panel=document.getElementById('panel');
+  const SPEC=[
+    ['Accent',[['--accent-h','hue',0,360,1],['--accent-c','chroma',0,.3,.005],['--accent-l','lightness',.4,.99,.01],['--bg-l','ground',.06,.3,.005]]],
+    ['Display',[['--sz-display','size px',90,200,2],['--lh-display','line height',.85,1.4,.01],['--w-display','weight',300,800,100],['--track','tracking',-.06,.02,.002]]],
+    ['Title',[['--sz-title','size px',50,120,2],['--lh-title','line height',.9,1.5,.01]]],
+    ['Sub',[['--sz-sub','size px',24,60,1],['--lh-sub','line height',1,1.6,.01],['--w-sub','weight',300,800,100]]],
+    ['Body',[['--sz-body','size px',18,44,1],['--lh-body','line height',1.1,2,.01]]],
+    ['Caption',[['--sz-cap','size px',14,32,1]]],
+    ['Motion',[['--speed','orbit seconds',4,24,.5]]]];
+  const UNIT={'--track':'em','--speed':'s'};
+  const DEF={};SPEC.forEach(([,it])=>it.forEach(([k])=>DEF[k]=parseFloat(getComputedStyle(root).getPropertyValue(k))));
+  const KEY='deck-final-user';
+  let state={...DEF};
+  try{Object.assign(state,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
+  const el=(t,p={})=>Object.assign(document.createElement(t),p);
+  let dirty=false;
+  panel.append(el('h5',{textContent:'Accent presets'}));
+  const sw=el('div',{className:'swatches'});panel.append(sw);
+  [['mono',.97,.005,265],['tuned yellow',.87,.14,98],['lavender',.74,.13,292],['amber',.83,.15,80],['red',.62,.22,27],['lime',.85,.19,130]].forEach(([n,L,C,H])=>{
+    const b=el('button',{title:n});b.style.background=`oklch(${L} ${C} ${H})`;
+    b.onclick=()=>{Object.assign(state,{'--accent-l':L,'--accent-c':C,'--accent-h':H});dirty=true;apply()};sw.append(b)});
+  const inputs={};
+  SPEC.forEach(([g,items])=>{panel.append(el('h5',{textContent:g}));
+    items.forEach(([k,label,min,max,step])=>{
+      const w=el('label');w.append(el('span',{textContent:label}),el('span',{className:'v',id:'v'+k}));
+      const r=el('input',{type:'range',min,max,step});
+      r.addEventListener('input',()=>{state[k]=+r.value;dirty=true;apply()});inputs[k]=r;w.append(r);panel.append(w)})});
+  const reset=el('button',{textContent:'reset',style:'margin-top:10px'});
+  reset.onclick=()=>{state={...DEF};localStorage.removeItem(KEY);apply()};panel.append(reset);
+  function apply(){
+    for(const k in state)root.style.setProperty(k,state[k]+(UNIT[k]||''));
+    for(const k in inputs){inputs[k].value=state[k];document.getElementById('v'+k).textContent=state[k]}
+    if(dirty)try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  addEventListener('keydown',e=>{
+    if(e.key==='p'||e.key==='P'){panel.hidden=!panel.hidden;return}
+    if(['ArrowRight','ArrowDown',' ','PageDown'].includes(e.key)){e.preventDefault();go(i+1)}
+    if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(i-1)}
+    if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1)});
+  addEventListener('click',e=>{if(e.target.closest('#panel')||e.target.closest('#open'))return;
+    go(e.clientX<innerWidth*0.25?i-1:i+1)});
+  document.getElementById('open').onclick=e=>{e.stopPropagation();panel.hidden=!panel.hidden};
+  apply();go(Math.max(0,(parseInt(location.hash.slice(1))||1)-1));
+</script>
