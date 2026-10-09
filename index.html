@@ -53,7 +53,7 @@
   .steps{display:flex;gap:12px}
   .steps i{width:120px;height:6px;border-radius:3px;background:var(--line)}
   .steps i.on{background:var(--fg)}
-  .steps.five i{width:72px}
+  .steps.five i,.steps.four i{width:72px}
 
   /* surfaces */
   .card{background:var(--surface);border-radius:24px;padding:36px}
@@ -119,11 +119,14 @@
   /* stable frame */
   .chat{width:100%;display:flex;flex-direction:column;gap:20px}
   .bubble{align-self:flex-end;background:var(--surface);border-radius:28px 28px 8px 28px;padding:22px 30px;font-size:30px}
-  .resp{position:relative;height:250px}
+  .resp{position:relative;height:300px}
   .fl{position:absolute;inset:36px;display:flex;flex-direction:column;gap:16px;opacity:0;animation:cycle 9s infinite}
   .fl:nth-child(2){animation-delay:3s} .fl:nth-child(3){animation-delay:6s}
-  @keyframes cycle{0%{opacity:0}4%,30%{opacity:1}34%,100%{opacity:0}}
+  @keyframes cycle{0%{opacity:0}2%,31%{opacity:1}34%,100%{opacity:0}}
   .btns{display:flex;gap:14px;margin-top:auto}
+  .vary h3{color:var(--mute);animation:varyline 9s infinite}
+  .vary h3:nth-child(2){animation-delay:3s} .vary h3:nth-child(3){animation-delay:6s}
+  @keyframes varyline{0%,33%{color:var(--fg)}34%,100%{color:var(--mute)}}
 
   /* last 10% */
   .ten{width:100%;display:grid;grid-template-columns:9fr 1fr;gap:6px}
@@ -179,6 +182,21 @@
   .tv{aspect-ratio:16/10;border-radius:16px;background:var(--surface);padding:16px;display:grid;gap:8px}
   .tv i{display:block;border-radius:5px;background:var(--line)}
   .tv.pick{box-shadow:0 0 0 4px var(--accent)} .tv.pick i.k{background:var(--fg)}
+  .rows > div.done h3{opacity:.32}
+  .file .tok{color:var(--fg)}
+  .oc{display:flex;gap:14px;align-items:center;background:var(--raised);border-radius:14px;padding:12px;width:62%}
+  .oc i{width:44px;height:44px;border-radius:10px;background:var(--mute);opacity:.55;flex:none}
+  .oc span{flex:1;display:flex;flex-direction:column;gap:8px}
+  .oc b{display:block;height:9px;border-radius:5px;background:var(--mute);opacity:.7}
+  .oc b + b{opacity:.4}
+  .ocs{display:flex;gap:12px} .ocs .oc{width:auto;flex:1}
+  .vids{display:flex;gap:48px}
+  .vids figure{margin:0;display:flex;flex-direction:column;gap:16px}
+  .vids video{width:500px;height:500px;border-radius:24px;object-fit:cover;background:var(--surface);display:block;pointer-events:none}
+  .vids video::-webkit-media-controls{display:none!important}
+  .vids.showcase{gap:80px}
+  .vids.showcase video{width:480px;height:480px}
+  .vids.showcase figure{align-items:center;gap:20px}
   .r{opacity:0}
   .slide.active .r{animation:rise .8s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--d,0)*80ms)}
   @keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
@@ -199,7 +217,7 @@
 
   @media (prefers-reduced-motion:reduce){
     .r,.slide.active .r{animation:none;opacity:1}
-    .orbit,.fl,.av,.av::after,.av::before,.av svg,.eq i,.eyes i,.kgpulse,.flow .chip,.loopback,.citem.new{animation:none}.fl:nth-child(1){opacity:1}
+    .orbit,.fl,.av,.av::after,.av::before,.av svg,.eq i,.eyes i,.kgpulse,.flow .chip,.loopback,.citem.new,.vary h3{animation:none}.fl:nth-child(1){opacity:1}
     .slide.active .typed{animation:none;width:32ch}
   }
 </style>
@@ -215,41 +233,24 @@
       <p>Product designer @ Meta<br>Prev @ X / Twitter / Google / LinkedIn / Yahoo</p>
     </div>
   </section>
-
-  <section class="slide">
-    <p class="eyebrow r">Show of hands</p>
-    <h1 class="r" style="--d:1">Who’s here?</h1>
-    <div class="fig">
-      <div class="rows r" style="--d:2">
-        <div style="grid-template-columns:1fr"><h3>Designers</h3></div>
-        <div style="grid-template-columns:1fr"><h3>PMs</h3></div>
-        <div style="grid-template-columns:1fr"><h3>Engineers</h3></div>
-        <div style="grid-template-columns:1fr"><h3>Founders, or something else</h3></div>
-      </div>
-    </div>
-  </section>
-
   <section class="slide">
     <p class="eyebrow r">Question 1 of 3</p>
     <h1 class="r" style="--d:1">Raise your hand if you’ve vibe‑coded something.</h1>
     <div class="fig"><p class="r" style="--d:2">A prototype, a site, an app.</p></div>
     <div class="foot steps r" style="--d:3"><i class="on"></i><i></i><i></i></div>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">Question 2 of 3</p>
     <h1 class="r" style="--d:1">Keep it up if you’ve given AI a quality bar.</h1>
     <div class="fig"><p class="r" style="--d:2">And let it check its own work until it passed.</p></div>
     <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i></i></div>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">Question 3 of 3</p>
     <h1 class="r" style="--d:1">Keep it up if you’ve designed a product where the AI decides what to do next.</h1>
     <div class="fig"></div>
     <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i class="on"></i></div>
   </section>
-
   <section class="slide">
     <h2 class="r" style="--d:1">Agenda</h2>
     <div class="fig">
@@ -260,9 +261,6 @@
       </div>
     </div>
   </section>
-
-  <!-- ============ PART 1 ============ -->
-
   <section class="slide">
     <p class="eyebrow r">Part 1</p>
     <h1 class="r" style="--d:1">Designing with AI</h1>
@@ -270,7 +268,6 @@
     <div class="fig"></div>
     <div class="foot steps r" style="--d:3"><i class="on"></i><i></i><i></i></div>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">Part 1 · Designing with AI</p>
     <h2 class="r" style="--d:1">My three loops</h2>
@@ -295,10 +292,9 @@
       </div>
     </div>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">Loop 1 · Context · onboarding</p>
-    <h2 class="r" style="--d:1">One folder for all your context, that agents can read and write.</h2>
+    <h2 class="r" style="--d:1">A file system where your agents store, retrieve, and update all your context.</h2>
     <div class="fig" style="padding-top:16px">
       <div class="cloop r" style="--d:2">
         <div class="ctx card">
@@ -308,7 +304,7 @@
             <div class="pcol"><p class="phead">Project 2</p><span class="citem">Brief</span><span class="citem">Meeting notes</span><span class="citem">Prototype</span><span class="citem new">+ Today’s decisions</span></div>
             <div class="pcol"><p class="phead">Project 3</p><span class="citem">PRD</span><span class="citem">Repo</span><span class="citem">Slides</span><span class="citem">User feedback</span></div>
           </div>
-          <div class="shared"><p class="phead" style="margin:0">Shared</p><span class="citem">About me</span><span class="citem">Design system</span><span class="citem">Team principles</span></div>
+          <div class="shared"><p class="phead" style="margin:0">Shared</p><span class="citem">About me</span><span class="citem">Design system</span><span class="citem">Team goals</span></div>
         </div>
         <svg viewBox="0 0 280 340" width="260" height="316" aria-hidden="true" style="overflow:visible">
           <defs>
@@ -327,32 +323,10 @@
         </div>
       </div>
     </div>
-    <p class="foot cap r" style="--d:4">“A filesystem provides a single interface through which an agent can flexibly store, retrieve, and update an infinite amount of context.” LangChain</p>
   </section>
-
-  <section class="slide">
-    <p class="eyebrow r">Loop 1 · Context</p>
-    <h2 class="r" style="--d:1">Context files are now an industry standard.</h2>
-    <p class="r sub" style="--d:2;margin-top:20px">One plain file at the root of a project tells every agent how to work there.</p>
-    <div class="fig">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;width:100%">
-        <div class="card r" style="--d:3;display:flex;flex-direction:column;gap:14px">
-          <span class="mono fg" style="font-size:28px">AGENTS.md</span><p>Read by 30+ coding agents. In 60,000+ open-source repos.</p>
-        </div>
-        <div class="card r" style="--d:4;display:flex;flex-direction:column;gap:14px">
-          <span class="mono fg" style="font-size:28px">CLAUDE.md</span><p>The same idea, for Claude Code.</p>
-        </div>
-        <div class="card r" style="--d:5;display:flex;flex-direction:column;gap:14px">
-          <span class="mono fg" style="font-size:28px">raw/ → wiki/</span><p>Karpathy’s LLM Wiki: an agent maintains the wiki on top of your sources.</p>
-        </div>
-      </div>
-    </div>
-    <p class="foot cap r" style="--d:6">AGENTS.md is now governed by the Linux Foundation’s Agentic AI Foundation. See also the Obsidian + Claude Code “second brain” pattern.</p>
-  </section>
-
   <section class="slide">
     <p class="eyebrow r">Loop 2 · Verification · design crit</p>
-    <h2 class="r" style="--d:1">Define the bar. Let it check its own work.</h2>
+    <h2 class="r" style="--d:1">Let AI verify its own work and iterate.</h2>
     <div class="fig">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:96px;align-items:center;width:100%">
         <div class="card r" style="--d:2;display:flex;flex-direction:column;gap:18px;aspect-ratio:16/9">
@@ -364,37 +338,16 @@
           <p class="cap" style="margin-bottom:22px">Its report back to me</p>
           <div style="display:flex;flex-direction:column;gap:22px">
             <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Spacing on the 4pt scale</h3>
-            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Contrast passes</h3>
-            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Matches the Figma frame</h3>
-            <h3 class="ac"><span style="display:inline-block;width:52px">?</span>Two layouts both pass. Which one?</h3>
+            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Color tokens are correct</h3>
+            <h3 class="m"><span style="display:inline-block;width:52px">✓</span>Layout and icons are right</h3>
+            <h3 class="ac"><span style="display:inline-block;width:52px">✕</span>Drop shadow is off</h3>
           </div>
-          <p class="cap" style="margin-top:28px">What it can’t decide is where I step in.</p>
+          <p class="cap" style="margin-top:28px">It checks the nuance and iterates until everything passes.</p>
         </div>
       </div>
     </div>
     <p class="foot cap r" style="--d:5">“Give Claude a way to verify its work. If Claude has that feedback loop, it will 2–3x the quality of the final result.” Boris Cherny, creator of Claude Code</p>
   </section>
-
-  <section class="slide">
-    <p class="eyebrow r">Where the two loops meet</p>
-    <h2 class="r" style="--d:1">I stopped repeating myself.</h2>
-    <div class="fig">
-      <div class="card r" style="--d:2;width:100%;padding:40px 48px">
-        <div class="file">
-          <span class="ln">1</span><span class="h">## Fixed</span>
-          <span class="ln">2</span><span class="t">Brand guidelines, design tokens, components</span>
-          <span class="ln">3</span><span>&nbsp;</span>
-          <span class="ln">4</span><span class="h">## Corrections</span>
-          <span class="ln">5</span><span class="t">No tertiary color for text.</span>
-          <span class="ln">6</span><span class="t">One primary button per screen.</span>
-          <span class="ln">7</span><span class="t">1px border, not a shadow.</span>
-          <span class="ln add">+</span><span class="add"><span class="typed">Date format is Sep 17, not 9/17.</span></span>
-        </div>
-      </div>
-    </div>
-    <p class="foot cap r" style="--d:4">design.md. Crit produces the correction, context remembers it, so it never makes the same mistake twice.</p>
-  </section>
-
   <section class="slide">
     <p class="eyebrow r">Loop 3 · Canvas · pairing at the desk</p>
     <h2 class="r" style="--d:1">AI explores widely. I pick and iterate.</h2>
@@ -414,10 +367,9 @@
     </div>
     <p class="foot cap r" style="--d:4">Ten directions in parallel. I pick the one worth iterating on.</p>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">Loop 3 · Canvas</p>
-    <h2 class="r" style="--d:1">I tweak by hand in Figma. The agent brings it back to code.</h2>
+    <h2 class="r" style="--d:1">Tweak by hand in design tools. Send it back to code.</h2>
     <div class="fig" style="flex-direction:column;justify-content:center;align-items:stretch">
       <div class="flow r" style="--d:2">
         <span class="chip" style="--i:0">Agent cooks</span><span class="link"></span>
@@ -431,14 +383,6 @@
     </div>
     <p class="foot cap r" style="--d:4">Spacing and alignment by hand. Then loop two checks the build matches the Figma frame.</p>
   </section>
-
-  <section class="slide">
-    <p class="eyebrow r">Figma, from the other direction</p>
-    <h2 class="r quote" style="--d:1">“Too often, the tools we have for building force us into false choices between design and code, humans and agents, prompting and direct manipulation.”</h2>
-    <div class="fig"></div>
-    <p class="foot cap r" style="--d:3">Dylan Field · CEO, Figma · Config 2026</p>
-  </section>
-
   <section class="slide">
     <p class="eyebrow r">Loop 3 · Canvas</p>
     <h2 class="r quote" style="--d:1">“Going hands-on is often faster, more natural, and token efficient than prompting your way to the ideal output.”</h2>
@@ -446,16 +390,16 @@
     <div class="fig"></div>
     <p class="foot cap r" style="--d:3">Rodrigo Davies &amp; Tammy Taabassum, Figma</p>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">Even with all three loops</p>
-    <h1 class="r" style="--d:1">The loops can’t tell you the spec is wrong.</h1>
-    <p class="r sub" style="--d:2">Work can pass every check and still feel dead.</p>
-    <div class="fig"></div>
+    <h2 class="r" style="--d:1">Agenda</h2>
+    <div class="fig">
+      <div class="rows r" style="--d:3">
+        <div style="grid-template-columns:72px 1fr" class="done"><h3 class="m">1</h3><h3>Designing with AI</h3></div>
+        <div style="grid-template-columns:72px 1fr"><h3 class="m">2</h3><h3>Designing the AI application</h3></div>
+        <div style="grid-template-columns:72px 1fr"><h3 class="m">3</h3><h3>What designers still own</h3></div>
+      </div>
+    </div>
   </section>
-
-  <!-- ============ PART 2 ============ -->
-
   <section class="slide">
     <p class="eyebrow r">Part 2</p>
     <h1 class="r" style="--d:1">Designing the AI application</h1>
@@ -463,7 +407,6 @@
     <div class="fig"></div>
     <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i></i></div>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">What we used to design</p>
     <h2 class="r" style="--d:1">We mapped the user’s journey.</h2>
@@ -478,10 +421,8 @@
     </div>
     <p class="foot cap r" style="--d:3">Roughly AARRR, Dave McClure, 2007</p>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">And every step was deterministic</p>
-    <h2 class="r" style="--d:1">Same input, same output. Every time.</h2>
+    <h2 class="r" style="--d:1">Every step was deterministic.</h2>
     <div class="fig">
       <div class="rows r" style="--d:2">
         <div style="grid-template-columns:1fr 1fr 160px"><h3>Types their name</h3><p>That exact name is saved and shown back</p><p class="fg" style="text-align:right">Always</p></div>
@@ -492,14 +433,12 @@
     </div>
     <p class="foot cap r" style="--d:3">We could mock every screen because we knew every screen.</p>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">What changed</p>
     <h1 class="r quote" style="--d:1">“When you prompt an LLM, you don’t know what you’ll get back.”</h1>
     <div class="fig"></div>
     <p class="foot cap r" style="--d:3">Andrew Ng · The AI Engineering Skills Map · The Batch, 14 August 2026</p>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">Part 2 · Its job description</p>
     <h2 class="r" style="--d:1">Designing the agent’s behavior</h2>
@@ -511,97 +450,66 @@
         <div style="grid-template-columns:260px 1fr"><h3 class="m">Knowledge</h3><p class="fg">What context do you load?</p></div>
         <div style="grid-template-columns:260px 1fr"><h3 class="m">Tools</h3><p class="fg">What can you do?</p></div>
         <div style="grid-template-columns:260px 1fr"><h3 class="ac">Autonomy</h3><p class="ac">What do you do alone, check, ask about, or hand off?</p></div>
-        <div style="grid-template-columns:260px 1fr"><h3 class="m">Response</h3><p class="fg">How do you show up: text, a component, a plan, a next step?</p></div>
+        <div style="grid-template-columns:260px 1fr"><h3 class="m">Response</h3><p class="fg">How do you show up: text, component, data viz, actions?</p></div>
       </div>
     </div>
   </section>
-
-  <section class="slide">
-    <p class="eyebrow r">The core design decision</p>
-    <h2 class="r" style="--d:1">The autonomy line</h2>
-    <div class="fig">
-      <div class="auto r" style="--d:2">
-        <div><div class="node"></div><h3 class="m">Do it</h3><p style="margin-top:14px">Look up, research, read.</p></div>
-        <div><div class="node"></div><h3 class="m">Check</h3><p style="margin-top:14px">Ambiguous? Clarify. Several valid paths? Let them steer.</p></div>
-        <div><div class="node on"></div><h3 class="ac">Ask</h3><p style="margin-top:14px">Money, sending, anything irreversible.</p></div>
-        <div><div class="node on"></div><h3 class="ac">Hand off</h3><p style="margin-top:14px">Repeated failure, or they want a person.</p></div>
-      </div>
-    </div>
-    <p class="foot cap r" style="--d:4">After OpenAI, A Practical Guide to Building Agents</p>
-  </section>
-
   <section class="slide">
     <p class="eyebrow r">The job description, written down</p>
     <h2 class="r" style="--d:1">It’s a system prompt.</h2>
     <div class="fig">
       <div class="card r" style="--d:2;width:100%;padding:36px 48px">
-        <div class="file" style="font-size:24px">
+        <div class="file" style="font-size:22px;line-height:1.62">
           <span class="ln">1</span><span class="h"># Acme Audio · Support Agent</span>
-          <span class="ln">2</span><span class="t">You help customers resolve order and product issues in one conversation.</span>
-          <span class="ln">3</span><span class="h">## Decide on your own</span>
-          <span class="ln">4</span><span class="t">Replacements or repairs under $100, when the item is in warranty.</span>
-          <span class="ln">5</span><span class="add">## Ask the customer first</span>
-          <span class="ln">6</span><span class="t">Any refund. Show the exact amount and wait for confirmation.</span>
-          <span class="ln">7</span><span class="add">## Hand off to a human</span>
-          <span class="ln">8</span><span class="t">Refunds over $200. A second failed attempt. Any time they ask for a person.</span>
-          <span class="ln">9</span><span class="h">## How to respond</span>
-          <span class="ln">10</span><span class="t">Lead with the answer. Orders as cards, options as buttons.</span>
+          <span class="ln">2</span><span class="t">You help customers resolve order and product issues.</span>
+          <span class="ln">3</span><span class="h">## Knowledge</span>
+          <span class="ln">4</span><span class="t">Order history, open tickets, return policy (30 days), warranty (12 months).</span>
+          <span class="ln">5</span><span class="h">## Tools</span>
+          <span class="ln">6</span><span class="t">look_up_order · create_return · issue_refund</span>
+          <span class="ln">7</span><span class="h">## Decide on your own</span>
+          <span class="ln">8</span><span class="t">Replacements or repairs under $100, when the item is in warranty.</span>
+          <span class="ln">9</span><span class="add">## Ask the customer first</span>
+          <span class="ln">10</span><span class="t">Any refund. Show the exact amount and wait for confirmation.</span>
+          <span class="ln">11</span><span class="add">## Hand off to a human</span>
+          <span class="ln">12</span><span class="t">Refunds over $200. A second failed attempt. Any time they ask for a person.</span>
+          <span class="ln">13</span><span class="h">## How to respond</span>
+          <span class="ln">14</span><span class="t">Lead with the answer. Show orders as <span class="tok">{cards}</span>, options as <span class="tok">{buttons}</span>.</span>
         </div>
       </div>
     </div>
     <p class="foot cap r" style="--d:3">Illustrative example.</p>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">“My headphones stopped working.”</p>
-    <h2 class="r" style="--d:1">Same request, different runs.</h2>
-    <div class="fig">
-      <div class="rows tight r" style="--d:2">
-        <div class="th" style="grid-template-columns:1fr 1fr"><span class="cap">Fixed by design</span><span class="cap">Varies run to run</span></div>
-        <div style="grid-template-columns:1fr 1fr"><h3>Checks order history first</h3><p>Sometimes checks open tickets too, sometimes not</p></div>
-        <div style="grid-template-columns:1fr 1fr"><h3>Order cards, never more than 3</h3><p>Asks “which order?”, or guesses from context</p></div>
-        <div style="grid-template-columns:1fr 1fr"><h3>One line of reasoning</h3><p>How it phrases it, which policy it mentions</p></div>
-        <div style="grid-template-columns:1fr 1fr"><h3>Options as buttons</h3><p>How many, and in what order</p></div>
-        <div style="grid-template-columns:1fr 1fr"><h3 class="ac">Confirm before any refund</h3><p>The wording of the ask</p></div>
-        <div style="grid-template-columns:1fr 1fr"><h3 class="ac">Over $200, a person takes over</h3><p>How it summarizes the case</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="slide">
-    <p class="eyebrow r">One request, many runs</p>
-    <h2 class="r" style="--d:1">Stable frame, unstable content.</h2>
+    <h2 class="r" style="--d:1">One request, many possible responses.</h2>
     <div class="fig">
       <div style="display:grid;grid-template-columns:1.25fr 1fr;gap:96px;align-items:center;width:100%">
         <div class="chat r" style="--d:2">
           <div class="bubble">My headphones stopped working.</div>
           <div class="card resp">
-            <div class="fl"><span class="bar fgb" style="width:70%"></span><span class="bar" style="width:52%"></span>
-              <span class="btns"><span class="chip">Replace</span><span class="chip">Repair</span><span class="chip ac">Refund $89</span></span></div>
-            <div class="fl"><span class="bar fgb" style="width:48%"></span><span class="bar" style="width:84%"></span><span class="bar" style="width:30%"></span>
-              <span class="btns"><span class="chip">Repair</span><span class="chip ac">Refund $89</span></span></div>
-            <div class="fl"><span class="bar fgb" style="width:80%"></span>
-              <span class="btns"><span class="chip">Store credit</span><span class="chip">Replace</span><span class="chip ac">Refund $89</span></span></div>
+            <div class="fl"><span class="bar fgb" style="width:74%"></span><span class="bar" style="width:88%"></span><span class="bar" style="width:56%"></span><span class="bar" style="width:68%"></span></div>
+            <div class="fl"><span class="bar fgb" style="width:52%"></span><span class="ocs"><span class="oc"><i></i><span><b></b><b style="width:60%"></b></span></span><span class="oc"><i></i><span><b></b><b style="width:60%"></b></span></span></span><span class="bar" style="width:40%"></span></div>
+            <div class="fl"><span class="bar fgb" style="width:64%"></span><span class="oc"><i></i><span><b></b><b style="width:60%"></b></span></span><span class="btns"><span class="chip">Repair</span><span class="chip">Replace</span><span class="chip">Refund $89</span></span></div>
           </div>
         </div>
-        <div class="r" style="--d:3;display:flex;flex-direction:column;gap:20px">
-          <h3 class="m">The words change every run.</h3>
-          <h3 class="ac">The “Confirm refund” step is always there.</h3>
+        <div class="r vary" style="--d:3;display:flex;flex-direction:column;gap:24px">
+          <h3>Follow up as a message.</h3>
+          <h3>Your orders, as cards.</h3>
+          <h3>Buttons to repair, replace, or refund.</h3>
         </div>
       </div>
     </div>
-    <p class="foot cap r" style="--d:4">You design the frame. The model fills it.</p>
+    <p class="foot cap r" style="--d:4">You design the components and the rules. The model picks what to show.</p>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">Part 2, in one line</p>
-    <h1 class="r" style="--d:1">We used to design every screen. Now we design the rules and the handoffs.</h1>
-    <p class="r sub" style="--d:2;max-width:none">What the agent does alone, and when it stops to ask a person.</p>
-    <div class="fig"></div>
+    <h2 class="r" style="--d:1">Agenda</h2>
+    <div class="fig">
+      <div class="rows r" style="--d:3">
+        <div style="grid-template-columns:72px 1fr" class="done"><h3 class="m">1</h3><h3>Designing with AI</h3></div>
+        <div style="grid-template-columns:72px 1fr" class="done"><h3 class="m">2</h3><h3>Designing the AI application</h3></div>
+        <div style="grid-template-columns:72px 1fr"><h3 class="m">3</h3><h3>What designers still own</h3></div>
+      </div>
+    </div>
   </section>
-
-  <!-- ============ PART 3 ============ -->
-
   <section class="slide">
     <p class="eyebrow r">Part 3</p>
     <h1 class="r" style="--d:1">What designers still own</h1>
@@ -609,24 +517,19 @@
     <div class="fig"></div>
     <div class="foot steps r" style="--d:3"><i class="on"></i><i class="on"></i><i class="on"></i></div>
   </section>
-
   <section class="slide">
     <p class="eyebrow r">The ceiling</p>
     <h1 class="r quote" style="--d:1">“While AI has lowered the floor, it has not raised the ceiling.”</h1>
     <div class="fig"></div>
     <p class="foot cap r" style="--d:3">Dylan Field · CEO, Figma · Config 2026</p>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">What designers still own · 1 of 5</p>
     <h1 class="r" style="--d:1">Set the bar, and raise the team’s.</h1>
     <p class="r sub" style="--d:2">The criteria in my design.md become the team’s criteria.</p>
     <div class="fig"></div>
-    <div class="foot steps five r" style="--d:3"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <div class="foot steps four r" style="--d:3"><i class="on"></i><i></i><i></i><i></i></div>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">What designers still own · 2 of 5</p>
     <h2 class="r" style="--d:1">The last 10% is polish.</h2>
     <div class="fig" style="flex-direction:column;justify-content:center;align-items:stretch;gap:28px">
       <div class="ten r" style="--d:2"><i></i><i class="ac"></i></div>
@@ -634,16 +537,13 @@
         <p>The loop gets you here.</p><p class="ac" style="white-space:nowrap;text-align:right">You</p>
       </div>
     </div>
-    <div class="foot" style="display:flex;justify-content:space-between;align-items:center">
+    <div class="foot" style="display:flex;flex-direction:column;align-items:flex-start;gap:28px">
       <p class="cap r" style="--d:4">Fixing what no check catches: spacing, alignment, empty states, error copy, the in-between states.</p>
-      <div class="steps five r" style="--d:4"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+      <div class="steps four r" style="--d:4"><i class="on"></i><i class="on"></i><i></i><i></i></div>
     </div>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">What designers still own · 3 of 5</p>
-    <h2 class="r" style="--d:1">Adding what wasn’t requested: personality, states, motion.</h2>
-    <p class="r sub" style="--d:2;margin-top:20px">Nobody files a bug for missing delight.</p>
+    <h2 class="r" style="--d:1">Personality, delight, motion.</h2>
     <div class="fig">
       <div class="states r" style="--d:2">
         <div><div class="av"><span class="eyes"><i></i><i></i></span></div><h3>Idle</h3></div>
@@ -652,50 +552,23 @@
         <div><div class="av"><span class="eq"><i></i><i></i><i></i><i></i></span></div><h3>Speaking</h3></div>
       </div>
     </div>
-    <div class="foot" style="display:flex;justify-content:space-between;align-items:center;gap:48px">
-      <span></span>
-      <div class="steps five r" style="--d:3;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
-    </div>
+    <div class="foot steps four r" style="--d:3"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
   </section>
-
-  <section class="slide">
-    <p class="eyebrow r">What designers still own · 4 of 5</p>
-    <h2 class="r" style="--d:1">“User” centric, and the user might not be human.</h2>
-    <p class="r sub" style="--d:2;margin-top:20px">Same product, two readers. The agent needs design too.</p>
-    <div class="fig">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;width:100%">
-        <div class="r" style="--d:3"><p class="cap" style="margin-bottom:18px">A person sees a screen</p>
-          <div class="card" style="display:flex;flex-direction:column;gap:16px;height:calc(100% - 46px)">
-            <span class="fg" style="font-size:28px;font-weight:500">Your orders</span>
-            <span class="chip" style="align-self:stretch;border-radius:14px">Studio headphones · Aug 2</span>
-            <span class="chip" style="align-self:stretch;border-radius:14px">Earbuds · Jun 18</span>
-          </div></div>
-        <div class="r" style="--d:4"><p class="cap" style="margin-bottom:18px">An agent reads a tool description</p>
-          <div class="card" style="height:calc(100% - 46px);display:flex;flex-direction:column;gap:16px">
-            <span class="fg" style="font-size:28px;font-weight:500">Tool: Look up orders</span>
-            <span style="font-size:28px;line-height:1.45;color:var(--mute)">Finds this customer’s past orders. Use it before answering any question about a return or refund.</span>
-          </div></div>
+  <section class="slide" style="justify-content:center;align-items:center;padding:0">
+      <div class="vids showcase r" style="--d:1">
+        <figure><video src="muse.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback></video><figcaption class="cap">Muse</figcaption></figure>
+        <figure><video src="grokbot.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback></video><figcaption class="cap">Grok Bot</figcaption></figure>
       </div>
-    </div>
-    <div class="foot" style="display:flex;justify-content:space-between;align-items:center;gap:48px">
-      <p class="cap r" style="--d:4">Anthropic: invest in the agent-computer interface as much as the human one.</p>
-      <div class="steps five r" style="--d:4;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
-    </div>
   </section>
-
   <section class="slide">
-    <p class="eyebrow r">And where I want to grow · 5 of 5</p>
-    <h1 class="r" style="--d:1">Building isn’t the hard part anymore.</h1>
-    <p class="r sub" style="--d:2">I can ship a product in a weekend. Getting people to use it is what I’m learning now: distribution, storytelling, business.</p>
+    <h1 class="r" style="--d:1">Getting into the real business.</h1>
+    <p class="r sub" style="--d:2">Building isn’t the hard part anymore: distribution, community, revenue.</p>
     <div class="fig"></div>
-    <div class="foot" style="display:flex;justify-content:space-between;align-items:center;gap:48px">
+    <div class="foot" style="display:flex;flex-direction:column;align-items:flex-start;gap:28px">
       <p class="cap r" style="--d:3">“Design without business is just decoration.” Steve Johnson, VP of Design, Netflix</p>
-      <div class="steps five r" style="--d:3;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+      <div class="steps four r" style="--d:3;flex:none"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
     </div>
   </section>
-
-  <!-- ============ CLOSE ============ -->
-
   <section class="slide">
     <p class="eyebrow r">Thank you</p>
     <h2 class="r" style="--d:1">We used to design for humans. Now we design for humans and the agents working for them.</h2>
@@ -719,6 +592,7 @@
   const slides=[...document.querySelectorAll('.slide')];let i=0;
   const go=n=>{i=Math.max(0,Math.min(slides.length-1,n));
     slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    document.querySelectorAll('video').forEach(v=>{if(slides[i].contains(v)){v.currentTime=0;v.play().catch(()=>{})}else v.pause()});
     slides[i].querySelectorAll('.flow').forEach(f=>{const c=f.querySelectorAll('.chip'),w=f.nextElementSibling;
       w.style.paddingLeft=c[0].offsetWidth/2-1+'px';w.style.paddingRight=c[c.length-1].offsetWidth/2-1+'px'});history.replaceState(null,'','#'+(i+1))};
   const root=document.documentElement,panel=document.getElementById('panel');
